@@ -2,6 +2,10 @@
 
 Aplicacao de exemplo que demonstra como integrar com o SDK [`@pague-dev/sdk-node`](https://www.npmjs.com/package/@pague-dev/sdk-node) para pagamentos.
 
+## Demo
+
+Acesse a aplicacao em **[testeumpix.pague.dev](https://testeumpix.pague.dev)**
+
 ## Funcionalidades Demonstradas
 
 - **PIX QR Code** - Geracao de cobranças PIX com QR Code
