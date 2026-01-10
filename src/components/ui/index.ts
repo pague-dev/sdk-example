@@ -14,6 +14,8 @@ export { InfoCard } from './InfoCard';
 export { EmptyState } from './EmptyState';
 export { CopyButton } from './CopyButton';
 export { RequiredLabel } from './RequiredLabel';
+export { StatusBadge } from './StatusBadge';
+export { Dialog } from './Dialog';
 
 // Types and Theme
 export * from './types';
