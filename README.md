@@ -44,6 +44,8 @@ await pdev.pix.create({ amount, description, customer });
 
 // Charges
 await pdev.charges.create({ projectId, name, amount, paymentMethods });
+await pdev.charges.list({ page, limit });
+await pdev.charges.get(id);
 
 // Customers
 await pdev.customers.create({ name, document });
