@@ -1,5 +1,5 @@
 import type { Transaction } from '@pague-dev/sdk-node';
-import { Card, FormHeader, Button, Alert, InfoCard, ClipboardIcon, SearchIcon } from '../ui';
+import { Card, FormHeader, Button, Alert, InfoCard, ClipboardIcon, SearchIcon, StatusBadge } from '../ui';
 import { formatCurrency, formatDatePtBR } from '@/lib/format';
 
 interface TransactionsFlowProps {
@@ -10,19 +10,6 @@ interface TransactionsFlowProps {
   error: string | null;
   transactionResult: Transaction | null;
   onSearch: () => void;
-}
-
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'completed':
-      return 'text-green-400';
-    case 'pending':
-      return 'text-yellow-400';
-    case 'failed':
-      return 'text-red-400';
-    default:
-      return 'text-zinc-400';
-  }
 }
 
 export function TransactionsFlow({
@@ -87,11 +74,10 @@ export function TransactionsFlow({
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <InfoCard
-                label="Status"
-                value={transactionResult.status}
-                valueClassName={`capitalize ${getStatusColor(transactionResult.status)}`}
-              />
+              <div className="bg-zinc-800/50 rounded-xl p-3">
+                <p className="text-zinc-500 text-xs mb-1">Status</p>
+                <StatusBadge status={transactionResult.status} />
+              </div>
               <InfoCard label="Tipo" value={transactionResult.type} valueClassName="capitalize" />
               <InfoCard label="Metodo" value={transactionResult.paymentMethod.toUpperCase()} />
               <InfoCard label="Valor" value={formatCurrency(transactionResult.amount, transactionResult.currency)} />
