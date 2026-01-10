@@ -344,7 +344,7 @@ export default function App() {
                 onKeyDown={(e) => e.key === 'Enter' && !isApiKeyValid && validateApiKey(apiKey)}
                 placeholder="pd_test_sua_chave_aqui"
                 disabled={isApiKeyValid}
-                className={`w-full bg-zinc-800/50 border rounded-xl px-4 py-3 pr-24 text-white font-mono text-sm transition-all ${
+                className={`w-full bg-zinc-800/50 border rounded-xl px-4 py-3 pr-40 text-white font-mono text-sm transition-all ${
                   isApiKeyValid
                     ? 'border-emerald-700/50 opacity-75'
                     : apiKeyError
@@ -352,13 +352,28 @@ export default function App() {
                     : 'border-zinc-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
                 }`}
               />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-              >
-                {showApiKey ? 'Ocultar' : 'Mostrar'}
-              </button>
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                {!isApiKeyValid && (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const text = await navigator.clipboard.readText();
+                      if (text) handleApiKeyInputChange(text);
+                    }}
+                    className="bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                    title="Colar do clipboard"
+                  >
+                    Colar
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                >
+                  {showApiKey ? 'Ocultar' : 'Mostrar'}
+                </button>
+              </div>
             </div>
 
             {!isApiKeyValid && (
