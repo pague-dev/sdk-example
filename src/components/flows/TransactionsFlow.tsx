@@ -27,16 +27,16 @@ export function TransactionsFlow({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Search Form */}
       <Card>
-        <FormHeader icon={<ClipboardIcon />} title="Buscar Transacao" color="orange" />
+        <FormHeader icon={<ClipboardIcon />} title="Buscar Transação" color="orange" />
 
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-2">ID da Transacao</label>
+            <label className="block text-sm font-medium text-zinc-400 mb-2">ID da Transação</label>
             <input
               type="text"
               value={transactionId}
               onChange={(e) => setTransactionId(e.target.value)}
-              placeholder="Digite o ID da transacao (UUID)"
+              placeholder="Digite o ID da transação (UUID)"
               className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 text-white font-mono text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
             />
           </div>
@@ -49,13 +49,13 @@ export function TransactionsFlow({
             disabled={!canSearch}
             onClick={onSearch}
           >
-            Buscar Transacao
+            Buscar Transação
           </Button>
         </div>
 
         {error && (
           <div className="mt-6">
-            <Alert type="error" title="Erro na requisicao" message={error} />
+            <Alert type="error" title="Erro na requisição" message={error} />
           </div>
         )}
       </Card>
@@ -68,7 +68,7 @@ export function TransactionsFlow({
           <div className="space-y-4">
             <Alert
               type="success"
-              title="Transacao encontrada!"
+              title="Transação encontrada!"
               message={transactionResult.id}
               color="orange"
             />
@@ -79,10 +79,10 @@ export function TransactionsFlow({
                 <StatusBadge status={transactionResult.status} />
               </div>
               <InfoCard label="Tipo" value={transactionResult.type} valueClassName="capitalize" />
-              <InfoCard label="Metodo" value={transactionResult.paymentMethod.toUpperCase()} />
+              <InfoCard label="Método" value={transactionResult.paymentMethod.toUpperCase()} />
               <InfoCard label="Valor" value={formatCurrency(transactionResult.amount, transactionResult.currency)} />
               {transactionResult.description && (
-                <InfoCard label="Descricao" value={transactionResult.description} colSpan={2} />
+                <InfoCard label="Descrição" value={transactionResult.description} colSpan={2} />
               )}
               <InfoCard
                 label="Criado em"
@@ -109,7 +109,7 @@ export function TransactionsFlow({
             <div className="w-16 h-16 mb-4 opacity-50">
               <SearchIcon />
             </div>
-            <p>Informe o ID para buscar a transacao</p>
+            <p>Informe o ID para buscar a transação</p>
           </div>
         )}
       </Card>

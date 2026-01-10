@@ -85,7 +85,7 @@ export function CustomersFlow({
           className="space-y-5"
         >
           <Input name="name" label="Nome" required placeholder="Nome completo" color="purple" />
-          <Input name="document" label="CPF/CNPJ" required placeholder="Somente numeros" color="purple" />
+          <Input name="document" label="CPF/CNPJ" required placeholder="Somente números" color="purple" />
           <Input name="email" label="Email (opcional)" type="email" placeholder="email@exemplo.com" color="purple" />
           <Input name="phone" label="Telefone (opcional)" placeholder="+5511999999999" color="purple" />
 
@@ -113,7 +113,7 @@ export function CustomersFlow({
 
         {error && (
           <div className="mt-6">
-            <Alert type="error" title="Erro na requisicao" message={error} />
+            <Alert type="error" title="Erro na requisição" message={error} />
           </div>
         )}
       </Card>

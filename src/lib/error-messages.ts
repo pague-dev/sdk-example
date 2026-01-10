@@ -3,35 +3,35 @@
  */
 const errorMessageMap: Record<string, string> = {
   // Validation errors
-  'Invalid customer document': 'CPF/CNPJ invalido. Verifique se digitou corretamente.',
-  'Invalid document': 'Documento invalido. Use apenas numeros.',
-  'Invalid email': 'Email invalido. Verifique o formato.',
-  'Invalid phone': 'Telefone invalido. Use o formato +5511999999999.',
-  'Invalid amount': 'Valor invalido. O valor deve ser maior que zero.',
+  'Invalid customer document': 'CPF/CNPJ inválido. Verifique se digitou corretamente.',
+  'Invalid document': 'Documento inválido. Use apenas números.',
+  'Invalid email': 'Email inválido. Verifique o formato.',
+  'Invalid phone': 'Telefone inválido. Use o formato +5511999999999.',
+  'Invalid amount': 'Valor inválido. O valor deve ser maior que zero.',
 
   // Authentication errors
-  'Invalid API key': 'API Key invalida. Verifique sua chave no painel.',
-  'Unauthorized': 'Nao autorizado. Verifique sua API Key.',
-  'Missing API key': 'API Key nao informada.',
+  'Invalid API key': 'API Key inválida. Verifique sua chave no painel.',
+  'Unauthorized': 'Não autorizado. Verifique sua API Key.',
+  'Missing API key': 'API Key não informada.',
 
   // Resource errors
-  'Project not found': 'Projeto nao encontrado.',
-  'Customer not found': 'Cliente nao encontrado.',
-  'Transaction not found': 'Transacao nao encontrada.',
-  'Charge not found': 'Cobranca nao encontrada.',
+  'Project not found': 'Projeto não encontrado.',
+  'Customer not found': 'Cliente não encontrado.',
+  'Transaction not found': 'Transação não encontrada.',
+  'Charge not found': 'Cobrança não encontrada.',
 
   // Rate limiting
-  'Rate limit exceeded': 'Muitas requisicoes. Aguarde alguns segundos.',
-  'Too many requests': 'Limite de requisicoes excedido. Tente novamente em breve.',
+  'Rate limit exceeded': 'Muitas requisições. Aguarde alguns segundos.',
+  'Too many requests': 'Limite de requisições excedido. Tente novamente em breve.',
 
   // Network errors
-  'NetworkError': 'Erro de conexao. Verifique sua internet.',
-  'Unable to fetch data': 'Nao foi possivel conectar ao servidor.',
+  'NetworkError': 'Erro de conexão. Verifique sua internet.',
+  'Unable to fetch data': 'Não foi possível conectar ao servidor.',
 
   // Generic errors
-  'Bad Request': 'Requisicao invalida. Verifique os dados informados.',
+  'Bad Request': 'Requisição inválida. Verifique os dados informados.',
   'Internal Server Error': 'Erro interno do servidor. Tente novamente.',
-  'Service Unavailable': 'Servico indisponivel. Tente novamente em alguns minutos.',
+  'Service Unavailable': 'Serviço indisponível. Tente novamente em alguns minutos.',
 };
 
 interface ApiError {
@@ -91,21 +91,21 @@ export function formatApiError(error: unknown): string {
   if (apiError.statusCode) {
     switch (apiError.statusCode) {
       case 400:
-        return 'Dados invalidos. Verifique as informacoes e tente novamente.';
+        return 'Dados inválidos. Verifique as informações e tente novamente.';
       case 401:
-        return 'Nao autorizado. Verifique sua API Key.';
+        return 'Não autorizado. Verifique sua API Key.';
       case 403:
-        return 'Acesso negado. Voce nao tem permissao para esta acao.';
+        return 'Acesso negado. Você não tem permissão para esta ação.';
       case 404:
-        return 'Recurso nao encontrado.';
+        return 'Recurso não encontrado.';
       case 429:
-        return 'Muitas requisicoes. Aguarde alguns segundos.';
+        return 'Muitas requisições. Aguarde alguns segundos.';
       case 500:
         return 'Erro interno do servidor. Tente novamente.';
       case 502:
       case 503:
       case 504:
-        return 'Servico temporariamente indisponivel. Tente novamente em alguns minutos.';
+        return 'Serviço temporariamente indisponível. Tente novamente em alguns minutos.';
       default:
         return `Erro ${apiError.statusCode}. Tente novamente.`;
     }

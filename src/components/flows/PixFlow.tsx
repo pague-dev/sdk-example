@@ -49,7 +49,7 @@ export function PixFlow({
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Form */}
       <Card>
-        <FormHeader icon={<PixIcon />} title="Criar Cobranca PIX" color="emerald" />
+        <FormHeader icon={<PixIcon />} title="Criar Cobrança PIX" color="emerald" />
 
         <SectionBox title="Selecione ou crie um projeto:">
           <ProjectSelector
@@ -89,11 +89,11 @@ export function PixFlow({
         >
           <CurrencyInput name="amount" label="Valor" defaultValue={100} required color="emerald" />
 
-          <Input name="description" label="Descricao" defaultValue="Pagamento via PIX" color="emerald" />
+          <Input name="description" label="Descrição" defaultValue="Pagamento via PIX" color="emerald" />
 
           {!useExistingCustomer && (
             <div className="grid grid-cols-2 gap-4">
-              <Input name="customerName" label="Nome do Cliente" required defaultValue="Joao da Silva" color="emerald" />
+              <Input name="customerName" label="Nome do Cliente" required defaultValue="João da Silva" color="emerald" />
               <Input name="customerDocument" label="CPF" required defaultValue="12345678909" color="emerald" />
             </div>
           )}
@@ -127,7 +127,7 @@ export function PixFlow({
       <Card>
         <h2 className="text-2xl font-bold mb-6">Resultado</h2>
 
-        {error && <Alert type="error" title="Erro na requisicao" message={error} className="mb-4" />}
+        {error && <Alert type="error" title="Erro na requisição" message={error} className="mb-4" />}
 
         {pixResult ? (
           <div className="space-y-6">
@@ -164,7 +164,7 @@ export function PixFlow({
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                Ver Transacao
+                Ver Transação
               </button>
             )}
 
@@ -174,13 +174,13 @@ export function PixFlow({
                 <WarningIcon />
               </div>
               <p className="text-zinc-400">
-                Configure um <span className="text-amber-400 font-medium">Webhook</span> para receber confirmacoes de pagamento.
+                Configure um <span className="text-amber-400 font-medium">Webhook</span> para receber confirmações de pagamento.
                 <span className="text-zinc-500 ml-1">Evite polling.</span>
               </p>
             </div>
           </div>
         ) : (
-          <EmptyState icon={<QrCodePlaceholder />} message="Preencha o formulario para gerar o PIX" />
+          <EmptyState icon={<QrCodePlaceholder />} message="Preencha o formulário para gerar o PIX" />
         )}
       </Card>
     </div>

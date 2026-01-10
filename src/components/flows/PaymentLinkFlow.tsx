@@ -100,8 +100,8 @@ export function PaymentLinkFlow({
           className="space-y-5"
         >
 
-          <Input name="name" label="Nome do Produto/Servico" required defaultValue="Produto Premium" color="blue" />
-          <Input name="description" label="Descricao" defaultValue="Acesso completo ao conteudo premium" color="blue" />
+          <Input name="name" label="Nome do Produto/Serviço" required defaultValue="Produto Premium" color="blue" />
+          <Input name="description" label="Descrição" defaultValue="Acesso completo ao conteúdo premium" color="blue" />
           <CurrencyInput name="amount" label="Valor" defaultValue={99.9} required color="blue" />
 
           <Button
@@ -143,7 +143,7 @@ export function PaymentLinkFlow({
               <InfoCard label="Nome" value={chargeResult.name} />
               <InfoCard label="Valor" value={formatCurrency(chargeResult.amount)} valueClassName="text-xl" />
               <InfoCard label="Status" value={chargeResult.status} valueClassName="capitalize" />
-              <InfoCard label="Metodos" value={chargeResult.paymentMethods.join(', ').toUpperCase()} />
+              <InfoCard label="Métodos" value={chargeResult.paymentMethods.join(', ').toUpperCase()} />
               <InfoCard label="Slug" value={chargeResult.slug} colSpan={2} />
             </div>
           </div>
@@ -166,7 +166,7 @@ export function PaymentLinkFlow({
               </button>
             </div>
 
-            {error && <Alert type="error" title="Erro na requisicao" message={error} className="mb-4" />}
+            {error && <Alert type="error" title="Erro na requisição" message={error} className="mb-4" />}
 
             {/* Search by ID */}
             <div className="flex gap-2">
@@ -195,7 +195,7 @@ export function PaymentLinkFlow({
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <InfoCard label="Valor" value={formatCurrency(selectedCharge.amount)} />
-                  <InfoCard label="Metodos" value={selectedCharge.paymentMethods.join(', ').toUpperCase()} />
+                  <InfoCard label="Métodos" value={selectedCharge.paymentMethods.join(', ').toUpperCase()} />
                   <InfoCard label="ID" value={selectedCharge.id} colSpan={2} />
                 </div>
                 {selectedCharge.url && (

@@ -18,11 +18,11 @@ import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WebhooksFlow
 type FlowType = 'pix' | 'payment-link' | 'customers' | 'transactions' | 'webhooks';
 
 const flowDescriptions: Record<FlowType, string> = {
-  pix: 'Gere QR Codes para pagamentos instantaneos',
-  'payment-link': 'Crie links de pagamento compartilhaveis',
+  pix: 'Gere QR Codes para pagamentos instantâneos',
+  'payment-link': 'Crie links de pagamento compartilháveis',
   customers: 'Gerencie sua base de clientes',
-  transactions: 'Consulte transacoes por ID',
-  webhooks: 'Configure notificacoes em tempo real',
+  transactions: 'Consulte transações por ID',
+  webhooks: 'Configure notificações em tempo real',
 };
 
 export default function App() {
@@ -174,7 +174,7 @@ export default function App() {
       return;
     }
     if (!transactionId.trim()) {
-      setError('Informe o ID da transacao');
+      setError('Informe o ID da transação');
       return;
     }
     setLoading(true);
@@ -254,7 +254,7 @@ export default function App() {
             </div>
             <div>
               <h2 className="font-semibold">API Key</h2>
-              <p className="text-zinc-500 text-sm">Sua chave sera salva localmente no navegador</p>
+              <p className="text-zinc-500 text-sm">Sua chave será salva localmente no navegador</p>
             </div>
           </div>
           <div className="relative">
@@ -296,7 +296,7 @@ export default function App() {
               Clientes
             </TabButton>
             <TabButton active={activeFlow === 'transactions'} color="orange" onClick={() => { setActiveFlow('transactions'); clearResults(); }}>
-              Transacoes
+              Transações
             </TabButton>
             <TabButton active={activeFlow === 'webhooks'} color="violet" onClick={() => { setActiveFlow('webhooks'); clearResults(); }}>
               Webhooks

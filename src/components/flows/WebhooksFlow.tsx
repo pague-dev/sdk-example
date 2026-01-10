@@ -52,7 +52,7 @@ const eventExamples: Record<EventType, object> = {
 const eventDescriptions: Record<EventType, { title: string; description: string; color: string }> = {
   payment_completed: {
     title: 'Pagamento Confirmado',
-    description: 'Enviado quando um pagamento PIX e confirmado com sucesso.',
+    description: 'Enviado quando um pagamento PIX é confirmado com sucesso.',
     color: 'emerald',
   },
   payment_failed: {
@@ -61,8 +61,8 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     color: 'red',
   },
   refund_completed: {
-    title: 'Reembolso Concluido',
-    description: 'Enviado quando um reembolso e processado.',
+    title: 'Reembolso Concluído',
+    description: 'Enviado quando um reembolso é processado.',
     color: 'amber',
   },
 };
@@ -108,7 +108,7 @@ export function WebhooksFlow() {
         <Card>
           <FormHeader icon={<WebhookIcon />} title="Webhooks" color="violet" />
           <p className="text-zinc-400 text-sm mb-6">
-            Receba notificacoes em tempo real sobre eventos de pagamento.
+            Receba notificações em tempo real sobre eventos de pagamento.
           </p>
           <h3 className="text-lg font-semibold mb-4">Tipos de Eventos</h3>
 
@@ -181,12 +181,12 @@ export function WebhooksFlow() {
       <Card>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold">Implementacao com o SDK</h2>
+            <h2 className="text-xl font-bold">Implementação com o SDK</h2>
             <p className="text-zinc-400 text-sm mt-1">
               Use <code className="text-violet-400">parseWebhook()</code> para parsing type-safe do payload.
             </p>
           </div>
-          <CopyButton text={codeExample} label="Copiar codigo" />
+          <CopyButton text={codeExample} label="Copiar código" />
         </div>
 
         <pre className="bg-zinc-950 rounded-xl p-4 overflow-x-auto text-sm">
@@ -212,8 +212,8 @@ export function WebhooksFlow() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h3 className="font-semibold mb-1">Responda rapido</h3>
-          <p className="text-zinc-400 text-sm">Retorne HTTP 200 rapidamente. Processe webhooks de forma assincrona se necessario.</p>
+          <h3 className="font-semibold mb-1">Responda rápido</h3>
+          <p className="text-zinc-400 text-sm">Retorne HTTP 200 rapidamente. Processe webhooks de forma assíncrona se necessário.</p>
         </div>
 
         <div className="bg-zinc-900/50 rounded-xl p-5 border border-zinc-800">
