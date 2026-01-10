@@ -4,7 +4,7 @@ Aplicação de exemplo que demonstra como integrar com o SDK [`@pague-dev/sdk-no
 
 ## Demo
 
-Acesse a aplicação em **[testeumpix.pague.dev](https://testeumpix.pague.dev)**
+Acesse a aplicação em **[testeagora.pague.dev](https://testeagora.pague.dev)**
 
 ## Funcionalidades Demonstradas
 
