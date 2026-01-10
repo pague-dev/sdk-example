@@ -208,7 +208,7 @@ export default function App() {
           <h1 className="text-4xl font-bold mb-3">pague.dev SDK</h1>
           <p className="text-zinc-400 text-lg mb-6">Explore a API de pagamentos</p>
           <a
-            href="https://github.com/pague-dev/pdev-sdk"
+            href="https://github.com/pague-dev/sdk-example"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 px-5 py-2.5 rounded-xl text-sm font-medium transition-all"
