@@ -1,19 +1,19 @@
-# pague.dev SDK - Exemplo de Integracao
+# pague.dev SDK - Exemplo de Integração
 
-Aplicacao de exemplo que demonstra como integrar com o SDK [`@pague-dev/sdk-node`](https://www.npmjs.com/package/@pague-dev/sdk-node) para pagamentos.
+Aplicação de exemplo que demonstra como integrar com o SDK [`@pague-dev/sdk-node`](https://www.npmjs.com/package/@pague-dev/sdk-node) para pagamentos.
 
 ## Demo
 
-Acesse a aplicacao em **[testeumpix.pague.dev](https://testeumpix.pague.dev)**
+Acesse a aplicação em **[testeumpix.pague.dev](https://testeumpix.pague.dev)**
 
 ## Funcionalidades Demonstradas
 
-- **PIX QR Code** - Geracao de cobranças PIX com QR Code
-- **Links de Pagamento** - Criacao de charges com URLs compartilhaveis
+- **PIX QR Code** - Geração de cobranças PIX com QR Code
+- **Links de Pagamento** - Criação de charges com URLs compartilháveis
 - **Clientes** - Cadastro e listagem de customers
-- **Projetos** - Criacao e gerenciamento de projects
-- **Transacoes** - Consulta de transactions por ID
-- **Webhooks** - Exemplos de payloads e implementacao com `parseWebhook()`
+- **Projetos** - Criação e gerenciamento de projects
+- **Transações** - Consulta de transactions por ID
+- **Webhooks** - Exemplos de payloads e implementação com `parseWebhook()`
 
 ## Stack
 
@@ -25,7 +25,7 @@ Acesse a aplicacao em **[testeumpix.pague.dev](https://testeumpix.pague.dev)**
 ## Rodando Localmente
 
 ```bash
-# Instalar dependencias
+# Instalar dependências
 npm install
 
 # Iniciar servidor de desenvolvimento
@@ -36,7 +36,7 @@ Acesse `http://localhost:5173` e informe sua API Key para testar os endpoints.
 
 ## Uso do SDK
 
-O SDK e inicializado em `src/lib/api.ts`:
+O SDK é inicializado em `src/lib/api.ts`:
 
 ```typescript
 import { Pdev } from '@pague-dev/sdk-node';
@@ -63,6 +63,6 @@ await pdev.projects.list({ page, limit });
 await pdev.transactions.get(id);
 ```
 
-## Documentacao
+## Documentação
 
-Consulte a documentacao completa em **[docs.pague.dev](https://docs.pague.dev)**
+Consulte a documentação completa em **[docs.pague.dev](https://docs.pague.dev)**
