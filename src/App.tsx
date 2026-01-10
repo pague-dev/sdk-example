@@ -28,6 +28,9 @@ const flowDescriptions: Record<FlowType, string> = {
 export default function App() {
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
+  const [isApiKeyValid, setIsApiKeyValid] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   const [activeFlow, setActiveFlow] = useState<FlowType>('pix');
   const [loading, setLoading] = useState(false);
   const [pixResult, setPixResult] = useState<PixCharge | null>(null);
@@ -73,25 +76,76 @@ export default function App() {
     if (result.data) setSelectedCharge(result.data as Charge);
   }
 
+  async function validateApiKey(key: string) {
+    if (!key.trim()) {
+      setApiKeyError('Informe a API Key');
+      return;
+    }
+
+    setIsValidating(true);
+    setApiKeyError(null);
+    setIsApiKeyValid(false);
+
+    const result = await listProjects(key, 1, 1);
+
+    if (result.data) {
+      // Sucesso - API key válida
+      setIsApiKeyValid(true);
+      setApiKeyError(null);
+      localStorage.setItem('pdev_api_key', key);
+      loadProjects(key);
+      loadCustomers(key);
+      loadChargesList(key);
+    } else if (result.error) {
+      // Erro - API key inválida ou outro erro
+      const { statusCode, message } = result.error;
+      if (statusCode === 401 || statusCode === 403) {
+        setApiKeyError('API Key inválida. Verifique sua chave.');
+      } else if (statusCode === null) {
+        setApiKeyError('Erro de conexão. Verifique sua internet.');
+      } else {
+        setApiKeyError(message || 'Erro ao validar API Key.');
+      }
+      setIsApiKeyValid(false);
+      setProjects([]);
+      setCustomers([]);
+      setCharges([]);
+    }
+
+    setIsValidating(false);
+  }
+
+  function handleApiKeyInputChange(value: string) {
+    setApiKey(value);
+    // Reseta validação quando muda a key
+    if (isApiKeyValid) {
+      setIsApiKeyValid(false);
+      setProjects([]);
+      setCustomers([]);
+      setCharges([]);
+    }
+    setApiKeyError(null);
+  }
+
+  function handleLogout() {
+    setApiKey('');
+    setIsApiKeyValid(false);
+    setApiKeyError(null);
+    setProjects([]);
+    setCustomers([]);
+    setCharges([]);
+    localStorage.removeItem('pdev_api_key');
+  }
+
   useEffect(() => {
     const savedKey = localStorage.getItem('pdev_api_key');
     if (savedKey) {
       setApiKey(savedKey);
-      loadProjects(savedKey);
-      loadCustomers(savedKey);
-      loadChargesList(savedKey);
+      // Valida a key salva automaticamente
+      validateApiKey(savedKey);
     }
-  }, [loadCustomers, loadChargesList]);
+  }, []);
 
-  function handleApiKeyChange(value: string) {
-    setApiKey(value);
-    localStorage.setItem('pdev_api_key', value);
-    if (value) {
-      loadProjects(value);
-      loadCustomers(value);
-      loadChargesList(value);
-    }
-  }
 
   async function handleCreatePix(formData: FormData) {
     if (!apiKey) {
@@ -245,46 +299,121 @@ export default function App() {
         </div>
 
         {/* API Key Input */}
-        <div className="bg-zinc-900/50 backdrop-blur rounded-2xl p-6 border border-zinc-800 mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
+        <div className={`bg-zinc-900/50 backdrop-blur rounded-2xl p-6 border mb-8 transition-colors ${
+          isApiKeyValid ? 'border-emerald-700/50' : apiKeyError ? 'border-red-700/50' : 'border-zinc-800'
+        }`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                isApiKeyValid ? 'bg-emerald-600' : 'bg-violet-600'
+              }`}>
+                {isApiKeyValid ? (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                )}
+              </div>
+              <div>
+                <h2 className="font-semibold">API Key</h2>
+                <p className="text-zinc-500 text-sm">
+                  {isApiKeyValid ? 'Conectado com sucesso' : 'Sua chave será salva localmente no navegador'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-semibold">API Key</h2>
-              <p className="text-zinc-500 text-sm">Sua chave será salva localmente no navegador</p>
+            {isApiKeyValid && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-zinc-400 hover:text-red-400 text-sm font-medium transition-colors"
+              >
+                Desconectar
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={apiKey}
+                onChange={(e) => handleApiKeyInputChange(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !isApiKeyValid && validateApiKey(apiKey)}
+                placeholder="pd_test_sua_chave_aqui"
+                disabled={isApiKeyValid}
+                className={`w-full bg-zinc-800/50 border rounded-xl px-4 py-3 pr-24 text-white font-mono text-sm transition-all ${
+                  isApiKeyValid
+                    ? 'border-emerald-700/50 opacity-75'
+                    : apiKeyError
+                    ? 'border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                    : 'border-zinc-700 focus:border-violet-500 focus:ring-1 focus:ring-violet-500'
+                }`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              >
+                {showApiKey ? 'Ocultar' : 'Mostrar'}
+              </button>
             </div>
+
+            {!isApiKeyValid && (
+              <button
+                type="button"
+                onClick={() => validateApiKey(apiKey)}
+                disabled={isValidating || !apiKey.trim()}
+                className="bg-violet-600 hover:bg-violet-500 disabled:bg-zinc-700 disabled:cursor-not-allowed px-6 py-3 rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
+              >
+                {isValidating ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Validando...
+                  </>
+                ) : (
+                  'Validar'
+                )}
+              </button>
+            )}
           </div>
-          <div className="relative">
-            <input
-              type={showApiKey ? 'text' : 'password'}
-              value={apiKey}
-              onChange={(e) => handleApiKeyChange(e.target.value)}
-              placeholder="pd_test_sua_chave_aqui"
-              className="w-full bg-zinc-800/50 border border-zinc-700 rounded-xl px-4 py-3 pr-24 text-white font-mono text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
-            />
-            <button
-              type="button"
-              onClick={() => setShowApiKey(!showApiKey)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-            >
-              {showApiKey ? 'Ocultar' : 'Mostrar'}
-            </button>
-          </div>
-          {!apiKey && (
-            <p className="text-amber-400 text-sm mt-2 flex items-center gap-2">
+
+          {/* Status Messages */}
+          {!apiKey && !apiKeyError && (
+            <p className="text-amber-400 text-sm mt-3 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
-              Informe sua API Key para testar os endpoints
+              Informe e valide sua API Key para testar os endpoints
+            </p>
+          )}
+
+          {apiKeyError && (
+            <p className="text-red-400 text-sm mt-3 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              {apiKeyError}
+            </p>
+          )}
+
+          {isApiKeyValid && (
+            <p className="text-emerald-400 text-sm mt-3 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              API Key válida - você pode usar todos os endpoints
             </p>
           )}
         </div>
 
         {/* Flow Selection */}
-        <div className="text-center mb-10">
+        <div className={`text-center mb-10 ${!isApiKeyValid ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex flex-wrap justify-center gap-3 mb-4">
             <TabButton active={activeFlow === 'pix'} color="emerald" onClick={() => { setActiveFlow('pix'); clearResults(); }}>
               PIX QR Code
@@ -305,8 +434,23 @@ export default function App() {
           <p className="text-zinc-400 text-sm">{flowDescriptions[activeFlow]}</p>
         </div>
 
+        {/* Blocked State */}
+        {!isApiKeyValid && (
+          <div className="bg-zinc-900/50 backdrop-blur rounded-2xl p-12 border border-zinc-800 text-center">
+            <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Valide sua API Key</h3>
+            <p className="text-zinc-400 text-sm max-w-md mx-auto">
+              Para proteger contra uso indevido, você precisa validar sua API Key antes de usar os endpoints.
+            </p>
+          </div>
+        )}
+
         {/* Flows */}
-        {activeFlow === 'pix' && (
+        {isApiKeyValid && activeFlow === 'pix' && (
           <PixFlow
             apiKey={apiKey}
             projects={projects}
@@ -328,7 +472,7 @@ export default function App() {
           />
         )}
 
-        {activeFlow === 'payment-link' && (
+        {isApiKeyValid && activeFlow === 'payment-link' && (
           <PaymentLinkFlow
             apiKey={apiKey}
             projects={projects}
@@ -351,7 +495,7 @@ export default function App() {
           />
         )}
 
-        {activeFlow === 'customers' && (
+        {isApiKeyValid && activeFlow === 'customers' && (
           <CustomersFlow
             apiKey={apiKey}
             customers={customers}
@@ -368,7 +512,7 @@ export default function App() {
           />
         )}
 
-        {activeFlow === 'transactions' && (
+        {isApiKeyValid && activeFlow === 'transactions' && (
           <TransactionsFlow
             apiKey={apiKey}
             transactionId={transactionId}
@@ -380,7 +524,7 @@ export default function App() {
           />
         )}
 
-        {activeFlow === 'webhooks' && <WebhooksFlow />}
+        {isApiKeyValid && activeFlow === 'webhooks' && <WebhooksFlow />}
       </div>
     </div>
   );
