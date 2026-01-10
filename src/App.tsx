@@ -7,6 +7,8 @@ import {
   createCustomer,
   listCustomers,
   getTransaction,
+  listCharges,
+  getCharge,
 } from './lib/api';
 import type { PixCharge, Charge, Project, Customer, Transaction } from '@pague-dev/sdk-node';
 import { TabButton } from '@/components/ui';
@@ -40,6 +42,9 @@ export default function App() {
   const [transactionId, setTransactionId] = useState('');
   const [transactionResult, setTransactionResult] = useState<Transaction | null>(null);
   const [customerCreated, setCustomerCreated] = useState<Customer | null>(null);
+  const [charges, setCharges] = useState<Charge[]>([]);
+  const [loadingCharges, setLoadingCharges] = useState(false);
+  const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
 
   async function loadProjects(key: string) {
     setLoadingProjects(true);
@@ -55,14 +60,28 @@ export default function App() {
     setLoadingCustomers(false);
   }, []);
 
+  const loadChargesList = useCallback(async (key: string) => {
+    setLoadingCharges(true);
+    const result = await listCharges(key, 1, 100);
+    if (result.data) setCharges(result.data.items);
+    setLoadingCharges(false);
+  }, []);
+
+  async function handleGetCharge(id: string) {
+    if (!apiKey) return;
+    const result = await getCharge(apiKey, id);
+    if (result.data) setSelectedCharge(result.data as Charge);
+  }
+
   useEffect(() => {
     const savedKey = localStorage.getItem('pdev_api_key');
     if (savedKey) {
       setApiKey(savedKey);
       loadProjects(savedKey);
       loadCustomers(savedKey);
+      loadChargesList(savedKey);
     }
-  }, []);
+  }, [loadCustomers, loadChargesList]);
 
   function handleApiKeyChange(value: string) {
     setApiKey(value);
@@ -70,6 +89,7 @@ export default function App() {
     if (value) {
       loadProjects(value);
       loadCustomers(value);
+      loadChargesList(value);
     }
   }
 
@@ -109,7 +129,10 @@ export default function App() {
 
     const result = await createCharge(apiKey, formData);
     if (result.error) setError(formatApiError(result.error));
-    else if (result.data) setChargeResult(result.data as Charge);
+    else if (result.data) {
+      setChargeResult(result.data as Charge);
+      await loadChargesList(apiKey);
+    }
     setLoading(false);
   }
 
@@ -170,6 +193,7 @@ export default function App() {
     setChargeResult(null);
     setTransactionResult(null);
     setCustomerCreated(null);
+    setSelectedCharge(null);
   }
 
   const handleSearchCustomers = useCallback((search: string) => {
@@ -294,6 +318,12 @@ export default function App() {
             chargeResult={chargeResult}
             onSubmit={handleCreateCharge}
             onCreateProject={handleCreateProject}
+            onCloseResult={() => setChargeResult(null)}
+            charges={charges}
+            loadingCharges={loadingCharges}
+            selectedCharge={selectedCharge}
+            onRefreshCharges={() => loadChargesList(apiKey)}
+            onSelectCharge={handleGetCharge}
           />
         )}
 

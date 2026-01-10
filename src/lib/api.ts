@@ -105,3 +105,15 @@ export async function getTransaction(apiKey: string, id: string) {
   const result = await pdev.transactions.get(id);
   return result;
 }
+
+export async function listCharges(apiKey: string, page = 1, limit = 10) {
+  const pdev = createPdevClient(apiKey);
+  const result = await pdev.charges.list({ page, limit });
+  return result;
+}
+
+export async function getCharge(apiKey: string, id: string) {
+  const pdev = createPdevClient(apiKey);
+  const result = await pdev.charges.get(id);
+  return result;
+}
