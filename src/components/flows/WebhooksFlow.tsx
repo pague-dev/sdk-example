@@ -1,50 +1,67 @@
 import { useState } from 'react';
 import { Card, FormHeader, CopyButton, WebhookIcon } from '../ui';
 
-type EventType = 'payment_completed' | 'payment_failed' | 'refund_completed';
+type EventType = 'payment_completed' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed';
 
 const eventExamples: Record<EventType, object> = {
   payment_completed: {
     event: 'payment_completed',
-    eventId: 'txn_abc123def456',
-    timestamp: '2024-01-15T10:30:00.000Z',
+    eventId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+    timestamp: '2026-01-11T19:03:28.280Z',
     data: {
-      transactionId: 'txn_abc123def456',
-      amount: 100.5,
-      feeAmount: 0.99,
-      netAmount: 99.51,
+      transactionId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+      amount: 100.21,
+      feeAmount: 0.5,
+      netAmount: 99.71,
       currency: 'BRL',
       paymentMethod: 'pix',
       status: 'completed',
-      completedAt: '2024-01-15T10:30:00.000Z',
-    },
-  },
-  payment_failed: {
-    event: 'payment_failed',
-    eventId: 'txn_xyz789ghi012',
-    timestamp: '2024-01-15T10:35:00.000Z',
-    data: {
-      transactionId: 'txn_xyz789ghi012',
-      amount: 50.0,
-      currency: 'BRL',
-      paymentMethod: 'pix',
-      status: 'failed',
-      failedAt: '2024-01-15T10:35:00.000Z',
-      failureReason: 'expired',
+      completedAt: '2026-01-11T19:03:28.277Z',
+      externalReference: 'pedido-12345',
     },
   },
   refund_completed: {
     event: 'refund_completed',
-    eventId: 'txn_ref456jkl789',
-    timestamp: '2024-01-15T11:00:00.000Z',
+    eventId: 'c92d45e6-8b33-4f12-a789-2e56f8901def',
+    timestamp: '2026-01-11T19:22:15.456Z',
     data: {
-      refundTransactionId: 'txn_ref456jkl789',
-      originalTransactionId: 'txn_abc123def456',
-      amount: 100.5,
-      feeAmount: 0,
+      refundTransactionId: 'c92d45e6-8b33-4f12-a789-2e56f8901def',
+      originalTransactionId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+      amount: 50.0,
+      feeAmount: 0.25,
+      netAmount: 49.75,
       currency: 'BRL',
       status: 'completed',
-      refundedAt: '2024-01-15T11:00:00.000Z',
+      completedAt: '2026-01-11T19:22:15.400Z',
+    },
+  },
+  withdrawal_completed: {
+    event: 'withdrawal_completed',
+    eventId: 'e73775b5-70ee-4bad-be4c-4acff9890e27',
+    timestamp: '2026-01-11T19:08:21.953Z',
+    data: {
+      withdrawalId: 'e73775b5-70ee-4bad-be4c-4acff9890e27',
+      amount: 500.0,
+      feeAmount: 2.5,
+      netAmount: 497.5,
+      currency: 'BRL',
+      status: 'completed',
+      completedAt: '2026-01-11T19:08:21.939Z',
+    },
+  },
+  withdrawal_failed: {
+    event: 'withdrawal_failed',
+    eventId: 'b84f12c3-9a21-4e67-bc88-1d45f6789abc',
+    timestamp: '2026-01-11T19:15:42.123Z',
+    data: {
+      withdrawalId: 'b84f12c3-9a21-4e67-bc88-1d45f6789abc',
+      amount: 1000.0,
+      feeAmount: 5.0,
+      netAmount: 995.0,
+      currency: 'BRL',
+      status: 'failed',
+      failedAt: '2026-01-11T19:15:42.100Z',
+      failureReason: 'insufficient_funds',
     },
   },
 };
@@ -55,15 +72,20 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     description: 'Enviado quando um pagamento PIX é confirmado com sucesso.',
     color: 'emerald',
   },
-  payment_failed: {
-    title: 'Pagamento Falhou',
-    description: 'Enviado quando um pagamento falha ou expira.',
-    color: 'red',
-  },
   refund_completed: {
     title: 'Reembolso Concluído',
     description: 'Enviado quando um reembolso é processado.',
     color: 'amber',
+  },
+  withdrawal_completed: {
+    title: 'Saque Concluído',
+    description: 'Enviado quando um saque é processado com sucesso.',
+    color: 'blue',
+  },
+  withdrawal_failed: {
+    title: 'Saque Falhou',
+    description: 'Enviado quando um saque é rejeitado ou falha.',
+    color: 'red',
   },
 };
 
@@ -84,14 +106,19 @@ app.post('/webhook', (req, res) => {
       await handlePayment(event.data.transactionId);
       break;
 
-    case 'payment_failed':
-      // event.data is PaymentFailedData
-      await handleFailure(event.data.failureReason);
-      break;
-
     case 'refund_completed':
       // event.data is RefundCompletedData
       await handleRefund(event.data.originalTransactionId);
+      break;
+
+    case 'withdrawal_completed':
+      // event.data is WithdrawalCompletedData
+      await handleWithdrawal(event.data.withdrawalId);
+      break;
+
+    case 'withdrawal_failed':
+      // event.data is WithdrawalFailedData
+      await handleWithdrawalFailure(event.data.failureReason);
       break;
   }
 
@@ -100,6 +127,21 @@ app.post('/webhook', (req, res) => {
 
 export function WebhooksFlow() {
   const [selectedEvent, setSelectedEvent] = useState<EventType>('payment_completed');
+
+  const getColorClass = (color: string) => {
+    switch (color) {
+      case 'emerald':
+        return 'bg-emerald-500';
+      case 'amber':
+        return 'bg-amber-500';
+      case 'blue':
+        return 'bg-blue-500';
+      case 'red':
+        return 'bg-red-500';
+      default:
+        return 'bg-zinc-500';
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -128,11 +170,7 @@ export function WebhooksFlow() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        color === 'emerald' ? 'bg-emerald-500' : color === 'red' ? 'bg-red-500' : 'bg-amber-500'
-                      }`}
-                    />
+                    <div className={`w-3 h-3 rounded-full ${getColorClass(color)}`} />
                     <div>
                       <p className="font-semibold text-white">{title}</p>
                       <p className="text-sm text-zinc-400">{description}</p>
