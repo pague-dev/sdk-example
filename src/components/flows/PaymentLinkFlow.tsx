@@ -21,6 +21,7 @@ interface PaymentLinkFlowProps {
   charges: Charge[];
   loadingCharges: boolean;
   selectedCharge: Charge | null;
+  loadingSelectedCharge: boolean;
   onRefreshCharges: () => void;
   onSelectCharge: (id: string) => void;
 }
@@ -42,6 +43,7 @@ export function PaymentLinkFlow({
   charges,
   loadingCharges,
   selectedCharge,
+  loadingSelectedCharge,
   onRefreshCharges,
   onSelectCharge,
 }: PaymentLinkFlowProps) {
@@ -186,7 +188,11 @@ export function PaymentLinkFlow({
             )}
 
             {/* Selected Charge Details */}
-            {selectedCharge && (
+            {loadingSelectedCharge ? (
+              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-2xl p-6 border border-blue-500/30 flex justify-center">
+                <Spinner />
+              </div>
+            ) : selectedCharge && (
               <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 rounded-2xl p-6 border border-blue-500/30">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">{selectedCharge.name}</h3>

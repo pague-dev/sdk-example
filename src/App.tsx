@@ -48,6 +48,7 @@ export default function App() {
   const [charges, setCharges] = useState<Charge[]>([]);
   const [loadingCharges, setLoadingCharges] = useState(false);
   const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
+  const [loadingSelectedCharge, setLoadingSelectedCharge] = useState(false);
 
   async function loadProjects(key: string) {
     setLoadingProjects(true);
@@ -72,8 +73,10 @@ export default function App() {
 
   async function handleGetCharge(id: string) {
     if (!apiKey) return;
+    setLoadingSelectedCharge(true);
     const result = await getCharge(apiKey, id);
     if (result.data) setSelectedCharge(result.data as Charge);
+    setLoadingSelectedCharge(false);
   }
 
   async function validateApiKey(key: string) {
@@ -513,6 +516,7 @@ export default function App() {
             charges={charges}
             loadingCharges={loadingCharges}
             selectedCharge={selectedCharge}
+            loadingSelectedCharge={loadingSelectedCharge}
             onRefreshCharges={() => loadChargesList(apiKey)}
             onSelectCharge={handleGetCharge}
           />
