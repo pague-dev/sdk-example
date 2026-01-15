@@ -19,6 +19,10 @@ const eventExamples: Record<EventType, object> = {
       status: 'completed',
       completedAt: '2026-01-11T19:03:28.277Z',
       externalReference: 'pedido-12345',
+      metadata: {
+        orderId: 'ORDER-12345',
+        customerId: 'CUST-67890',
+      },
     },
   },
   refund_completed: {
@@ -35,6 +39,10 @@ const eventExamples: Record<EventType, object> = {
       currency: 'BRL',
       status: 'completed',
       completedAt: '2026-01-11T19:22:15.400Z',
+      metadata: {
+        orderId: 'ORDER-12345',
+        customerId: 'CUST-67890',
+      },
     },
   },
   withdrawal_completed: {
@@ -50,6 +58,9 @@ const eventExamples: Record<EventType, object> = {
       currency: 'BRL',
       status: 'completed',
       completedAt: '2026-01-11T19:08:21.939Z',
+      metadata: {
+        batchId: 'BATCH-001',
+      },
     },
   },
   withdrawal_failed: {
@@ -66,6 +77,9 @@ const eventExamples: Record<EventType, object> = {
       status: 'failed',
       failedAt: '2026-01-11T19:15:42.100Z',
       failureReason: 'insufficient_funds',
+      metadata: {
+        batchId: 'BATCH-001',
+      },
     },
   },
 };
@@ -107,7 +121,8 @@ app.post('/webhook', (req, res) => {
   switch (event.event) {
     case 'payment_completed':
       // event.data is PaymentCompletedData
-      await handlePayment(event.data.transactionId);
+      const { transactionId, metadata } = event.data;
+      await handlePayment(transactionId, metadata);
       break;
 
     case 'refund_completed':
