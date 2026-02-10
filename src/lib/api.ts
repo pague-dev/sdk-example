@@ -117,3 +117,28 @@ export async function getCharge(apiKey: string, id: string) {
   const result = await pdev.charges.get(id);
   return result;
 }
+
+export async function createWithdrawal(apiKey: string, formData: FormData) {
+  const pdev = createPdevClient(apiKey);
+
+  const amount = parseFloat(formData.get('amount') as string);
+  const bankAccountId = formData.get('bankAccountId') as string;
+  const pixKey = formData.get('pixKey') as string;
+  const pixKeyType = formData.get('pixKeyType') as string;
+  const holderName = formData.get('holderName') as string;
+  const holderDocument = formData.get('holderDocument') as string;
+
+  const result = await pdev.withdrawals.create({
+    amount,
+    ...(bankAccountId
+      ? { bankAccountId }
+      : {
+          pixKey,
+          pixKeyType: pixKeyType as 'cpf' | 'cnpj' | 'email' | 'phone' | 'random',
+          holderName,
+          holderDocument,
+        }),
+  });
+
+  return result;
+}

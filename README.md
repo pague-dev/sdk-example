@@ -12,6 +12,7 @@ Acesse a aplicação em **[testeagora.pague.dev](https://testeagora.pague.dev)**
 - **Links de Pagamento** - Criação de charges com URLs compartilháveis
 - **Clientes** - Cadastro e listagem de customers
 - **Projetos** - Criação e gerenciamento de projects
+- **Saques PIX** - Criação de withdrawals (PIX avulso ou conta salva)
 - **Transações** - Consulta de transactions por ID
 - **Webhooks** - Exemplos de payloads e implementação com `parseWebhook()`
 
@@ -58,6 +59,10 @@ await pdev.customers.list({ page, limit, search });
 // Projects
 await pdev.projects.create({ name, color });
 await pdev.projects.list({ page, limit });
+
+// Withdrawals (Saques PIX)
+await pdev.withdrawals.create({ amount, pixKey, pixKeyType, holderName, holderDocument });
+await pdev.withdrawals.create({ amount, bankAccountId });
 
 // Transactions
 await pdev.transactions.get(id);

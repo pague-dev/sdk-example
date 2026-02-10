@@ -9,18 +9,20 @@ import {
   getTransaction,
   listCharges,
   getCharge,
+  createWithdrawal,
 } from './lib/api';
-import type { PixCharge, Charge, Project, Customer, Transaction } from '@pague-dev/sdk-node';
+import type { PixCharge, Charge, Project, Customer, Transaction, Withdrawal } from '@pague-dev/sdk-node';
 import { TabButton } from '@/components/ui';
 import { formatApiError } from '@/lib/error-messages';
-import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WebhooksFlow } from '@/components/flows';
+import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WithdrawalsFlow, WebhooksFlow } from '@/components/flows';
 
-type FlowType = 'pix' | 'payment-link' | 'customers' | 'transactions' | 'webhooks';
+type FlowType = 'pix' | 'payment-link' | 'customers' | 'withdrawals' | 'transactions' | 'webhooks';
 
 const flowDescriptions: Record<FlowType, string> = {
   pix: 'Gere QR Codes para pagamentos instantâneos',
   'payment-link': 'Crie links de pagamento compartilháveis',
   customers: 'Gerencie sua base de clientes',
+  withdrawals: 'Realize saques via PIX',
   transactions: 'Consulte transações por ID',
   webhooks: 'Configure notificações em tempo real',
 };
@@ -49,6 +51,7 @@ export default function App() {
   const [loadingCharges, setLoadingCharges] = useState(false);
   const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
   const [loadingSelectedCharge, setLoadingSelectedCharge] = useState(false);
+  const [withdrawalResult, setWithdrawalResult] = useState<Withdrawal | null>(null);
 
   async function loadProjects(key: string) {
     setLoadingProjects(true);
@@ -225,6 +228,21 @@ export default function App() {
     setLoading(false);
   }
 
+  async function handleCreateWithdrawal(formData: FormData) {
+    if (!apiKey) {
+      setError('Informe a API Key primeiro');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setWithdrawalResult(null);
+
+    const result = await createWithdrawal(apiKey, formData);
+    if (result.error) setError(formatApiError(result.error));
+    else if (result.data) setWithdrawalResult(result.data as Withdrawal);
+    setLoading(false);
+  }
+
   async function handleGetTransaction() {
     if (!apiKey) {
       setError('Informe a API Key primeiro');
@@ -251,6 +269,7 @@ export default function App() {
     setTransactionResult(null);
     setCustomerCreated(null);
     setSelectedCharge(null);
+    setWithdrawalResult(null);
   }
 
   const handleSearchCustomers = useCallback((search: string) => {
@@ -450,6 +469,9 @@ export default function App() {
             <TabButton active={activeFlow === 'customers'} color="purple" onClick={() => { setActiveFlow('customers'); clearResults(); }}>
               Clientes
             </TabButton>
+            <TabButton active={activeFlow === 'withdrawals'} color="orange" onClick={() => { setActiveFlow('withdrawals'); clearResults(); }}>
+              Saques
+            </TabButton>
             <TabButton active={activeFlow === 'transactions'} color="orange" onClick={() => { setActiveFlow('transactions'); clearResults(); }}>
               Transações
             </TabButton>
@@ -536,6 +558,15 @@ export default function App() {
             onRefresh={() => loadCustomers(apiKey)}
             onSearch={handleSearchCustomers}
             onCreateProject={handleCreateProject}
+          />
+        )}
+
+        {isApiKeyValid && activeFlow === 'withdrawals' && (
+          <WithdrawalsFlow
+            loading={loading}
+            error={error}
+            withdrawalResult={withdrawalResult}
+            onSubmit={handleCreateWithdrawal}
           />
         )}
 
