@@ -133,6 +133,16 @@ export function PixFlow({
           <div className="space-y-6">
             <Alert type="success" title="PIX criado com sucesso!" message={`ID: ${pixResult.id}`} />
 
+            {pixResult.qrCodeBase64 && (
+              <div className="flex justify-center">
+                <img
+                  src={pixResult.qrCodeBase64}
+                  alt="QR Code PIX"
+                  className="w-[200px] h-[200px] rounded-xl border border-zinc-700 bg-white p-2"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-zinc-400 mb-2">PIX Copia e Cola</label>
               <div className="relative">
