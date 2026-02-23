@@ -33,6 +33,25 @@ export async function createPixCharge(apiKey: string, formData: FormData) {
   return result;
 }
 
+export async function createStaticQrCode(apiKey: string, formData: FormData) {
+  const pdev = createPdevClient(apiKey);
+  const amount = parseFloat(formData.get('amount') as string);
+  const description = formData.get('description') as string;
+  const comment = formData.get('comment') as string;
+  const externalReference = formData.get('externalReference') as string;
+  const projectId = formData.get('projectId') as string;
+
+  return pdev.pix.createStaticQrCode({
+    ...(projectId && { projectId }),
+    transaction: {
+      description,
+      amount,
+      ...(comment && { comment }),
+      ...(externalReference && { externalReference }),
+    },
+  });
+}
+
 export async function createCustomer(apiKey: string, formData: FormData) {
   const pdev = createPdevClient(apiKey);
 
