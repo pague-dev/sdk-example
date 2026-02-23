@@ -179,8 +179,6 @@ export function PixFlow({
 
             <Input name="description" label="Descrição" defaultValue="Pagamento via PIX" color="emerald" />
 
-            <Input name="comment" label="Comentário" placeholder="Opcional" color="emerald" />
-
             <Input name="externalReference" label="Referência Externa" placeholder="Opcional" color="emerald" />
 
             <Button
