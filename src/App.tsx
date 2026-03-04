@@ -11,13 +11,14 @@ import {
   listCharges,
   getCharge,
   createWithdrawal,
+  getAccountInfo,
 } from './lib/api';
-import type { PixCharge, StaticQrCode, Charge, Project, Customer, Transaction, Withdrawal } from '@pague-dev/sdk-node';
+import type { PixCharge, StaticQrCode, Charge, Project, Customer, Transaction, Withdrawal, AccountInfo } from '@pague-dev/sdk-node';
 import { TabButton } from '@/components/ui';
 import { formatApiError } from '@/lib/error-messages';
-import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WithdrawalsFlow, WebhooksFlow } from '@/components/flows';
+import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WithdrawalsFlow, WebhooksFlow, AccountFlow } from '@/components/flows';
 
-type FlowType = 'pix' | 'payment-link' | 'customers' | 'withdrawals' | 'transactions' | 'webhooks';
+type FlowType = 'pix' | 'payment-link' | 'customers' | 'withdrawals' | 'transactions' | 'account' | 'webhooks';
 
 const flowDescriptions: Record<FlowType, string> = {
   pix: 'Gere QR Codes dinâmicos ou estáticos',
@@ -25,6 +26,7 @@ const flowDescriptions: Record<FlowType, string> = {
   customers: 'Gerencie sua base de clientes',
   withdrawals: 'Realize saques via PIX',
   transactions: 'Consulte transações por ID',
+  account: 'Consulte dados da conta e saldo',
   webhooks: 'Configure notificações em tempo real',
 };
 
@@ -53,6 +55,7 @@ export default function App() {
   const [selectedCharge, setSelectedCharge] = useState<Charge | null>(null);
   const [loadingSelectedCharge, setLoadingSelectedCharge] = useState(false);
   const [withdrawalResult, setWithdrawalResult] = useState<Withdrawal | null>(null);
+  const [accountResult, setAccountResult] = useState<AccountInfo | null>(null);
   const [pixMode, setPixMode] = useState<'dynamic' | 'static'>('dynamic');
   const [staticQrCodeResult, setStaticQrCodeResult] = useState<StaticQrCode | null>(null);
 
@@ -261,6 +264,21 @@ export default function App() {
     setLoading(false);
   }
 
+  async function handleGetAccount() {
+    if (!apiKey) {
+      setError('Informe a API Key primeiro');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setAccountResult(null);
+
+    const result = await getAccountInfo(apiKey);
+    if (result.error) setError(formatApiError(result.error));
+    else if (result.data) setAccountResult(result.data as AccountInfo);
+    setLoading(false);
+  }
+
   async function handleGetTransaction() {
     if (!apiKey) {
       setError('Informe a API Key primeiro');
@@ -289,6 +307,7 @@ export default function App() {
     setCustomerCreated(null);
     setSelectedCharge(null);
     setWithdrawalResult(null);
+    setAccountResult(null);
   }
 
   const handleSearchCustomers = useCallback((search: string) => {
@@ -494,6 +513,9 @@ export default function App() {
             <TabButton active={activeFlow === 'transactions'} color="orange" onClick={() => { setActiveFlow('transactions'); clearResults(); }}>
               Transações
             </TabButton>
+            <TabButton active={activeFlow === 'account'} color="violet" onClick={() => { setActiveFlow('account'); clearResults(); }}>
+              Conta
+            </TabButton>
             <TabButton active={activeFlow === 'webhooks'} color="violet" onClick={() => { setActiveFlow('webhooks'); clearResults(); }}>
               Webhooks
             </TabButton>
@@ -602,6 +624,15 @@ export default function App() {
             error={error}
             transactionResult={transactionResult}
             onSearch={handleGetTransaction}
+          />
+        )}
+
+        {isApiKeyValid && activeFlow === 'account' && (
+          <AccountFlow
+            loading={loading}
+            error={error}
+            accountResult={accountResult}
+            onFetch={handleGetAccount}
           />
         )}
 

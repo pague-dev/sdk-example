@@ -133,6 +133,11 @@ export async function getCharge(apiKey: string, id: string) {
   return result;
 }
 
+export async function getAccountInfo(apiKey: string) {
+  const pdev = createPdevClient(apiKey);
+  return pdev.account.get();
+}
+
 export async function createWithdrawal(apiKey: string, formData: FormData) {
   const pdev = createPdevClient(apiKey);
 
