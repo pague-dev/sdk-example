@@ -115,6 +115,10 @@ export function AccountFlow({
                   value={formatCurrency(accountResult.balance.promotional.amountFormatted, accountResult.balance.currency)}
                 />
                 <InfoCard
+                  label="Bloqueado"
+                  value={formatCurrency(accountResult.balance.held.amountFormatted, accountResult.balance.currency)}
+                />
+                <InfoCard
                   label="Total"
                   value={formatCurrency(accountResult.balance.total.amountFormatted, accountResult.balance.currency)}
                 />

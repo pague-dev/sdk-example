@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, FormHeader, CopyButton, WebhookIcon } from '../ui';
 
-type EventType = 'payment_completed' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed';
+type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed';
 
 const eventExamples: Record<EventType, object> = {
   payment_completed: {
@@ -18,6 +18,24 @@ const eventExamples: Record<EventType, object> = {
       paymentMethod: 'pix',
       status: 'completed',
       completedAt: '2026-01-11T19:03:28.277Z',
+      externalReference: 'pedido-12345',
+      metadata: {
+        orderId: 'ORDER-12345',
+        customerId: 'CUST-67890',
+      },
+    },
+  },
+  payment_expired: {
+    event: 'payment_expired',
+    eventId: 'payment_expired_d5e6f7a8-1234-5678-9abc-def012345678',
+    timestamp: '2026-01-11T19:30:00.000Z',
+    data: {
+      transactionId: 'd5e6f7a8-1234-5678-9abc-def012345678',
+      amount: 75.50,
+      currency: 'BRL',
+      paymentMethod: 'pix',
+      status: 'expired',
+      expiredAt: '2026-01-11T19:30:00.000Z',
       externalReference: 'pedido-12345',
       metadata: {
         orderId: 'ORDER-12345',
@@ -90,6 +108,11 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     description: 'Enviado quando um pagamento PIX é confirmado com sucesso.',
     color: 'emerald',
   },
+  payment_expired: {
+    title: 'Pagamento Expirado',
+    description: 'Enviado quando um pagamento PIX expira sem confirmação.',
+    color: 'zinc',
+  },
   refund_completed: {
     title: 'Reembolso Concluído',
     description: 'Enviado quando um reembolso é processado.',
@@ -125,6 +148,11 @@ app.post('/webhook', (req, res) => {
       await handlePayment(transactionId, metadata);
       break;
 
+    case 'payment_expired':
+      // event.data is PaymentExpiredData
+      await handleExpired(event.data.transactionId);
+      break;
+
     case 'refund_completed':
       // event.data is RefundCompletedData
       await handleRefund(event.data.originalTransactionId);
@@ -157,6 +185,8 @@ export function WebhooksFlow() {
         return 'bg-blue-500';
       case 'red':
         return 'bg-red-500';
+      case 'zinc':
+        return 'bg-zinc-500';
       default:
         return 'bg-zinc-500';
     }
