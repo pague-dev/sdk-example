@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, FormHeader, CopyButton, WebhookIcon } from '../ui';
 
-type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed';
+type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed' | 'withdrawal_reversed';
 
 const eventExamples: Record<EventType, object> = {
   payment_completed: {
@@ -31,7 +31,10 @@ const eventExamples: Record<EventType, object> = {
     timestamp: '2026-01-11T19:30:00.000Z',
     data: {
       transactionId: 'd5e6f7a8-1234-5678-9abc-def012345678',
+      environment: 'sandbox',
       amount: 75.50,
+      feeAmount: 0,
+      netAmount: 0,
       currency: 'BRL',
       paymentMethod: 'pix',
       status: 'expired',
@@ -55,8 +58,10 @@ const eventExamples: Record<EventType, object> = {
       feeAmount: 0.25,
       netAmount: 49.75,
       currency: 'BRL',
+      paymentMethod: 'pix',
       status: 'completed',
-      completedAt: '2026-01-11T19:22:15.400Z',
+      refundedAt: '2026-01-11T19:22:15.400Z',
+      externalReference: 'pedido-12345',
       metadata: {
         orderId: 'ORDER-12345',
         customerId: 'CUST-67890',
@@ -100,6 +105,26 @@ const eventExamples: Record<EventType, object> = {
       },
     },
   },
+  withdrawal_reversed: {
+    event: 'withdrawal_reversed',
+    eventId: 'f12a34b5-6c78-9d01-ef23-456789abcdef',
+    timestamp: '2026-01-11T20:00:00.000Z',
+    data: {
+      reversalTransactionId: 'f12a34b5-6c78-9d01-ef23-456789abcdef',
+      originalTransactionId: 'e73775b5-70ee-4bad-be4c-4acff9890e27',
+      environment: 'sandbox',
+      amount: 500.0,
+      feeAmount: 0,
+      netAmount: 500.0,
+      currency: 'BRL',
+      paymentMethod: 'pix',
+      status: 'completed',
+      reversedAt: '2026-01-11T20:00:00.000Z',
+      metadata: {
+        batchId: 'BATCH-001',
+      },
+    },
+  },
 };
 
 const eventDescriptions: Record<EventType, { title: string; description: string; color: string }> = {
@@ -127,6 +152,11 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     title: 'Saque Falhou',
     description: 'Enviado quando um saque é rejeitado ou falha.',
     color: 'red',
+  },
+  withdrawal_reversed: {
+    title: 'Saque Estornado',
+    description: 'Enviado quando um saque é estornado pelo PSP.',
+    color: 'violet',
   },
 };
 
@@ -167,6 +197,11 @@ app.post('/webhook', (req, res) => {
       // event.data is WithdrawalFailedData
       await handleWithdrawalFailure(event.data.failureReason);
       break;
+
+    case 'withdrawal_reversed':
+      // event.data is WithdrawalReversedData
+      await handleWithdrawalReversal(event.data.reversalTransactionId);
+      break;
   }
 
   res.status(200).send('OK');
@@ -185,6 +220,8 @@ export function WebhooksFlow() {
         return 'bg-blue-500';
       case 'red':
         return 'bg-red-500';
+      case 'violet':
+        return 'bg-violet-500';
       case 'zinc':
         return 'bg-zinc-500';
       default:
