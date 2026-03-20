@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@pague-dev/sdk-node": "^1.3.0",
+    "@pague-dev/sdk-node": "^2.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, FormHeader, CopyButton, WebhookIcon } from '../ui';
 
-type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed' | 'withdrawal_reversed';
+type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed' | 'withdrawal_reversed' | 'balance_block_created';
 
 const eventExamples: Record<EventType, object> = {
   payment_completed: {
@@ -125,6 +125,23 @@ const eventExamples: Record<EventType, object> = {
       },
     },
   },
+  balance_block_created: {
+    event: 'balance_block_created',
+    eventId: 'd4e5f6a7-8b9c-0d1e-2f3a-456789abcdef',
+    timestamp: '2026-01-11T19:30:00.000Z',
+    data: {
+      blockId: 'd4e5f6a7-8b9c-0d1e-2f3a-456789abcdef',
+      transactionId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+      environment: 'production',
+      amount: 1500.0,
+      currency: 'BRL',
+      blockType: 'med',
+      referenceNumber: 'MED-2026-001234',
+      reason: 'Notificação de infração Pix recebida',
+      status: 'awaiting_response',
+      createdAt: '2026-01-11T19:30:00.000Z',
+    },
+  },
 };
 
 const eventDescriptions: Record<EventType, { title: string; description: string; color: string }> = {
@@ -157,6 +174,11 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     title: 'Saque Estornado',
     description: 'Enviado quando um saque é estornado pelo PSP.',
     color: 'violet',
+  },
+  balance_block_created: {
+    title: 'Bloqueio Criado',
+    description: 'Enviado quando um bloqueio de saldo é criado (MED/judicial/administrativo).',
+    color: 'orange',
   },
 };
 
@@ -202,6 +224,11 @@ app.post('/webhook', (req, res) => {
       // event.data is WithdrawalReversedData
       await handleWithdrawalReversal(event.data.reversalTransactionId);
       break;
+
+    case 'balance_block_created':
+      // event.data is BalanceBlockCreatedData
+      await handleBalanceBlock(event.data.blockId, event.data.blockType);
+      break;
   }
 
   res.status(200).send('OK');
@@ -222,6 +249,8 @@ export function WebhooksFlow() {
         return 'bg-red-500';
       case 'violet':
         return 'bg-violet-500';
+      case 'orange':
+        return 'bg-orange-500';
       case 'zinc':
         return 'bg-zinc-500';
       default:
