@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, FormHeader, CopyButton, WebhookIcon } from '../ui';
 
-type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed' | 'withdrawal_reversed' | 'balance_block_created';
+type EventType = 'payment_completed' | 'payment_expired' | 'refund_completed' | 'withdrawal_completed' | 'withdrawal_failed' | 'withdrawal_reversed' | 'balance_block_created' | 'balance_block_approved' | 'balance_block_rejected';
 
 const eventExamples: Record<EventType, object> = {
   payment_completed: {
@@ -142,6 +142,44 @@ const eventExamples: Record<EventType, object> = {
       createdAt: '2026-01-11T19:30:00.000Z',
     },
   },
+  balance_block_approved: {
+    event: 'balance_block_approved',
+    eventId: 'd4e5f6a7-8b9c-0d1e-2f3a-456789abcdef',
+    timestamp: '2026-01-12T14:00:00.000Z',
+    data: {
+      blockId: 'd4e5f6a7-8b9c-0d1e-2f3a-456789abcdef',
+      transactionId: 'a0b78f10-c7f4-4f5d-98dd-3e36eafeb812',
+      environment: 'production',
+      amount: 1500.0,
+      currency: 'BRL',
+      blockType: 'med',
+      referenceNumber: 'MED-2026-001234',
+      reason: 'Notificação de infração Pix recebida',
+      resolutionReason: 'Devolução confirmada pelo BACEN',
+      status: 'approved',
+      createdAt: '2026-01-11T19:30:00.000Z',
+      resolvedAt: '2026-01-12T14:00:00.000Z',
+    },
+  },
+  balance_block_rejected: {
+    event: 'balance_block_rejected',
+    eventId: 'e5f6a7b8-9c0d-1e2f-3a4b-567890abcdef',
+    timestamp: '2026-01-12T14:00:00.000Z',
+    data: {
+      blockId: 'e5f6a7b8-9c0d-1e2f-3a4b-567890abcdef',
+      transactionId: 'b1c89f20-d8e5-5f6a-99ee-4f47eafeb923',
+      environment: 'production',
+      amount: 250.0,
+      currency: 'BRL',
+      blockType: 'med',
+      referenceNumber: 'MED-2026-005678',
+      reason: 'Notificação de infração Pix recebida',
+      resolutionReason: 'Defesa aceita - transação legítima comprovada',
+      status: 'rejected',
+      createdAt: '2026-01-11T19:30:00.000Z',
+      resolvedAt: '2026-01-12T14:00:00.000Z',
+    },
+  },
 };
 
 const eventDescriptions: Record<EventType, { title: string; description: string; color: string }> = {
@@ -179,6 +217,16 @@ const eventDescriptions: Record<EventType, { title: string; description: string;
     title: 'Bloqueio Criado',
     description: 'Enviado quando um bloqueio de saldo é criado (MED/judicial/administrativo).',
     color: 'orange',
+  },
+  balance_block_approved: {
+    title: 'Bloqueio Aprovado',
+    description: 'Enviado quando um bloqueio é aprovado e o valor é devolvido ao pagador.',
+    color: 'red',
+  },
+  balance_block_rejected: {
+    title: 'Bloqueio Rejeitado',
+    description: 'Enviado quando um bloqueio é rejeitado e o valor retorna ao lojista.',
+    color: 'emerald',
   },
 };
 
@@ -228,6 +276,16 @@ app.post('/webhook', (req, res) => {
     case 'balance_block_created':
       // event.data is BalanceBlockCreatedData
       await handleBalanceBlock(event.data.blockId, event.data.blockType);
+      break;
+
+    case 'balance_block_approved':
+      // event.data is BalanceBlockApprovedData
+      await handleBlockApproved(event.data.blockId, event.data.resolvedAt);
+      break;
+
+    case 'balance_block_rejected':
+      // event.data is BalanceBlockRejectedData
+      await handleBlockRejected(event.data.blockId, event.data.resolvedAt);
       break;
   }
 
