@@ -73,6 +73,13 @@ export function WithdrawalsFlow({
             <Input name="bankAccountId" label="ID da Conta Bancária" required placeholder="UUID da conta PIX salva" color="orange" />
           )}
 
+          <Input
+            name="externalReference"
+            label="Referência externa (opcional)"
+            placeholder="saque-empresa-001"
+            color="orange"
+          />
+
           <Button
             type="submit"
             color="orange"
@@ -107,6 +114,9 @@ export function WithdrawalsFlow({
               )}
               {withdrawalResult.processedAt && (
                 <InfoCard label="Processado em" value={formatDatePtBR(withdrawalResult.processedAt)} colSpan={2} />
+              )}
+              {withdrawalResult.externalReference && (
+                <InfoCard label="Referência externa" value={withdrawalResult.externalReference} colSpan={2} valueClassName="text-sm font-mono" />
               )}
               {withdrawalResult.failureReason && (
                 <InfoCard label="Motivo da falha" value={withdrawalResult.failureReason} colSpan={2} />

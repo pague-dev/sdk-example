@@ -1,4 +1,5 @@
-import type { Transaction } from '@pague-dev/sdk-node';
+import { useState } from 'react';
+import type { RequestRefund, Transaction } from '@pague-dev/sdk-node';
 import { Card, FormHeader, Button, Alert, InfoCard, ClipboardIcon, SearchIcon, StatusBadge } from '../ui';
 import { formatCurrency, formatDatePtBR } from '@/lib/format';
 
@@ -10,6 +11,7 @@ interface TransactionsFlowProps {
   error: string | null;
   transactionResult: Transaction | null;
   onSearch: () => void;
+  onRefund?: (id: string, reason: string) => Promise<RequestRefund | null>;
 }
 
 export function TransactionsFlow({
@@ -20,8 +22,18 @@ export function TransactionsFlow({
   error,
   transactionResult,
   onSearch,
+  onRefund,
 }: TransactionsFlowProps) {
   const canSearch = apiKey && transactionId.trim();
+  const [refundReason, setRefundReason] = useState('');
+  const [refundResult, setRefundResult] = useState<RequestRefund | null>(null);
+  const [refunding, setRefunding] = useState(false);
+  const [refundError, setRefundError] = useState<string | null>(null);
+
+  const canRefund =
+    !!onRefund &&
+    transactionResult?.type === 'payment' &&
+    transactionResult?.status === 'completed';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -103,6 +115,55 @@ export function TransactionsFlow({
                 <InfoCard label="Project ID" value={transactionResult.projectId} colSpan={2} valueClassName="text-sm font-mono" />
               )}
             </div>
+
+            {canRefund && (
+              <div className="mt-6 p-4 bg-zinc-800/50 rounded-xl space-y-3">
+                <h3 className="font-semibold">Solicitar reembolso</h3>
+                <p className="text-xs text-zinc-500">
+                  Reembolso é assíncrono — a confirmação chega via webhook <code>refund_completed</code>.
+                  Requer permissão <code>REFUND:WRITE</code> na chave de API.
+                </p>
+                <input
+                  type="text"
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  placeholder="Motivo (opcional, máx 255 chars)"
+                  maxLength={255}
+                  className="w-full bg-zinc-900/50 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
+                />
+                <Button
+                  type="button"
+                  color="orange"
+                  loading={refunding}
+                  loadingText="Solicitando..."
+                  disabled={!onRefund}
+                  onClick={async () => {
+                    if (!onRefund) return;
+                    setRefunding(true);
+                    setRefundError(null);
+                    setRefundResult(null);
+                    try {
+                      const r = await onRefund(transactionResult.id, refundReason);
+                      if (r) setRefundResult(r);
+                    } catch (err) {
+                      setRefundError(err instanceof Error ? err.message : String(err));
+                    } finally {
+                      setRefunding(false);
+                    }
+                  }}
+                >
+                  Solicitar reembolso
+                </Button>
+                {refundError && <Alert type="error" title="Erro no reembolso" message={refundError} />}
+                {refundResult && (
+                  <Alert
+                    type="success"
+                    title={`Reembolso ${refundResult.status}`}
+                    message={`PSP ${refundResult.pspProvider} • ID ${refundResult.pspRefundTransactionId}`}
+                  />
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-64 text-zinc-500">

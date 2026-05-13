@@ -121,6 +121,12 @@ export async function getTransaction(apiKey: string, id: string) {
   return result;
 }
 
+export async function refundTransaction(apiKey: string, id: string, reason?: string) {
+  const pdev = createPdevClient(apiKey);
+  const result = await pdev.transactions.refund(id, reason ? { reason } : {});
+  return result;
+}
+
 export async function listCharges(apiKey: string, page = 1, limit = 10) {
   const pdev = createPdevClient(apiKey);
   const result = await pdev.charges.list({ page, limit });
@@ -147,6 +153,7 @@ export async function createWithdrawal(apiKey: string, formData: FormData) {
   const pixKeyType = formData.get('pixKeyType') as string;
   const holderName = formData.get('holderName') as string;
   const holderDocument = formData.get('holderDocument') as string;
+  const externalReference = formData.get('externalReference') as string;
 
   const result = await pdev.withdrawals.create({
     amount,
@@ -158,6 +165,7 @@ export async function createWithdrawal(apiKey: string, formData: FormData) {
           holderName,
           holderDocument,
         }),
+    ...(externalReference && { externalReference }),
   });
 
   return result;

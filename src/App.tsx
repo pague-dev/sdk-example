@@ -8,6 +8,7 @@ import {
   createCustomer,
   listCustomers,
   getTransaction,
+  refundTransaction,
   listCharges,
   getCharge,
   createWithdrawal,
@@ -624,6 +625,11 @@ export default function App() {
             error={error}
             transactionResult={transactionResult}
             onSearch={handleGetTransaction}
+            onRefund={async (id, reason) => {
+              const r = await refundTransaction(apiKey, id, reason || undefined);
+              if (r.error) throw new Error(formatApiError(r.error));
+              return r.data ?? null;
+            }}
           />
         )}
 
