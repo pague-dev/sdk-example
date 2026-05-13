@@ -19,6 +19,9 @@ const eventExamples: Record<EventType, object> = {
       status: 'completed',
       completedAt: '2026-01-11T19:03:28.277Z',
       externalReference: 'pedido-12345',
+      e2eId: 'E18189547202603160145ZYFfVx3jP8D',
+      counterpartName: 'Maria Silva',
+      counterpartDocument: '12345678900',
       metadata: {
         orderId: 'ORDER-12345',
         customerId: 'CUST-67890',
@@ -56,7 +59,7 @@ const eventExamples: Record<EventType, object> = {
       environment: 'sandbox',
       amount: 50.0,
       feeAmount: 0.25,
-      netAmount: 49.75,
+      netAmount: 50.0,
       currency: 'BRL',
       paymentMethod: 'pix',
       status: 'completed',
@@ -81,6 +84,10 @@ const eventExamples: Record<EventType, object> = {
       currency: 'BRL',
       status: 'completed',
       completedAt: '2026-01-11T19:08:21.939Z',
+      externalReference: 'saque-empresa-001',
+      e2eId: 'E18189547202603160145ZYFfVx3jP8D',
+      counterpartName: 'João da Silva',
+      counterpartDocument: '12345678900',
       metadata: {
         batchId: 'BATCH-001',
       },
@@ -100,6 +107,10 @@ const eventExamples: Record<EventType, object> = {
       status: 'failed',
       failedAt: '2026-01-11T19:15:42.100Z',
       failureReason: 'insufficient_funds',
+      externalReference: 'saque-empresa-001',
+      e2eId: null,
+      counterpartName: 'João da Silva',
+      counterpartDocument: '12345678900',
       metadata: {
         batchId: 'BATCH-001',
       },
@@ -120,6 +131,7 @@ const eventExamples: Record<EventType, object> = {
       paymentMethod: 'pix',
       status: 'completed',
       reversedAt: '2026-01-11T20:00:00.000Z',
+      externalReference: 'saque-empresa-001',
       metadata: {
         batchId: 'BATCH-001',
       },
@@ -140,6 +152,8 @@ const eventExamples: Record<EventType, object> = {
       reason: 'Notificação de infração Pix recebida',
       status: 'awaiting_response',
       createdAt: '2026-01-11T19:30:00.000Z',
+      externalReference: 'pedido-12345',
+      e2eId: 'E18189547202603160145ZYFfVx3jP8D',
     },
   },
   balance_block_approved: {
@@ -159,6 +173,8 @@ const eventExamples: Record<EventType, object> = {
       status: 'approved',
       createdAt: '2026-01-11T19:30:00.000Z',
       resolvedAt: '2026-01-12T14:00:00.000Z',
+      externalReference: 'pedido-12345',
+      e2eId: 'E18189547202603160145ZYFfVx3jP8D',
     },
   },
   balance_block_rejected: {
@@ -178,6 +194,8 @@ const eventExamples: Record<EventType, object> = {
       status: 'rejected',
       createdAt: '2026-01-11T19:30:00.000Z',
       resolvedAt: '2026-01-12T14:00:00.000Z',
+      externalReference: 'pedido-67890',
+      e2eId: 'E4071059520260316020613919677838',
     },
   },
 };
