@@ -135,7 +135,8 @@ export async function getAccountInfo(apiKey: string) {
 export async function createWithdrawal(apiKey: string, formData: FormData) {
   const pdev = createPdevClient(apiKey);
 
-  const amount = parseFloat(formData.get('amount') as string);
+  const amountType = (formData.get('amountType') as string) || 'gross';
+  const amountValue = parseFloat(formData.get(amountType === 'net' ? 'netAmount' : 'amount') as string);
   const bankAccountId = formData.get('bankAccountId') as string;
   const pixKey = formData.get('pixKey') as string;
   const pixKeyType = formData.get('pixKeyType') as string;
@@ -144,7 +145,7 @@ export async function createWithdrawal(apiKey: string, formData: FormData) {
   const externalReference = formData.get('externalReference') as string;
 
   const result = await pdev.withdrawals.create({
-    amount,
+    ...(amountType === 'net' ? { netAmount: amountValue } : { amount: amountValue }),
     ...(bankAccountId
       ? { bankAccountId }
       : {

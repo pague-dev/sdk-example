@@ -5,6 +5,7 @@ import { WithdrawalIcon, WithdrawalPlaceholder, WarningIcon } from '../ui/icons'
 import { formatCurrency, formatDatePtBR } from '@/lib/format';
 
 type WithdrawalMode = 'inline' | 'bankAccount';
+type AmountType = 'gross' | 'net';
 
 interface WithdrawalsFlowProps {
   loading: boolean;
@@ -20,6 +21,7 @@ export function WithdrawalsFlow({
   onSubmit,
 }: WithdrawalsFlowProps) {
   const [mode, setMode] = useState<WithdrawalMode>('inline');
+  const [amountType, setAmountType] = useState<AmountType>('gross');
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -44,11 +46,36 @@ export function WithdrawalsFlow({
           onSubmit={(e) => {
             e.preventDefault();
             const formData = new FormData(e.currentTarget);
+            formData.set('amountType', amountType);
             onSubmit(formData);
           }}
           className="space-y-5"
         >
-          <CurrencyInput name="amount" label="Valor" defaultValue={50} required color="orange" />
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-2">Tipo de valor</label>
+            <ToggleGroup
+              options={[
+                { value: 'gross', label: 'Bruto (debitado)' },
+                { value: 'net', label: 'Líquido (recebido)' },
+              ]}
+              value={amountType}
+              onChange={(v) => setAmountType(v as AmountType)}
+              color="orange"
+            />
+            <p className="mt-2 text-xs text-zinc-500">
+              {amountType === 'gross'
+                ? 'O valor informado é debitado do saldo. O destinatário recebe valor − taxa.'
+                : 'O destinatário recebe exatamente este valor. O bruto (valor + taxa) é debitado do saldo.'}
+            </p>
+          </div>
+
+          <CurrencyInput
+            name={amountType === 'gross' ? 'amount' : 'netAmount'}
+            label={amountType === 'gross' ? 'Valor bruto' : 'Valor líquido'}
+            defaultValue={50}
+            required
+            color="orange"
+          />
 
           {mode === 'inline' ? (
             <>
