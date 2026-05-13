@@ -9,42 +9,30 @@ export async function createPixCharge(apiKey: string, formData: FormData) {
 
   const amount = parseFloat(formData.get('amount') as string);
   const description = formData.get('description') as string;
+  const includePayer = formData.get('includePayer') === 'on';
   const customerId = formData.get('customerId') as string;
   const customerName = formData.get('customerName') as string;
   const customerDocument = formData.get('customerDocument') as string;
   const projectId = formData.get('projectId') as string;
+  const externalReference = formData.get('externalReference') as string;
   const expiresIn = parseInt(formData.get('expiresIn') as string) || 3600;
 
-  const result = await pdev.pix.create({
+  return pdev.pix.create({
     amount,
     description,
-    ...(customerId
+    ...(includePayer && customerId
       ? { customerId }
-      : {
-          customer: {
-            name: customerName,
-            document: customerDocument,
-          },
-        }),
-    ...(projectId && { projectId }),
-    expiresIn,
-  });
-
-  return result;
-}
-
-export async function createStaticQrCode(apiKey: string, formData: FormData) {
-  const pdev = createPdevClient(apiKey);
-  const amount = parseFloat(formData.get('amount') as string);
-  const description = formData.get('description') as string;
-  const externalReference = formData.get('externalReference') as string;
-  const projectId = formData.get('projectId') as string;
-
-  return pdev.pix.createStaticQrCode({
-    amount,
-    description,
+      : includePayer
+        ? {
+            customer: {
+              name: customerName,
+              document: customerDocument,
+            },
+          }
+        : {}),
     ...(projectId && { projectId }),
     ...(externalReference && { externalReference }),
+    expiresIn,
   });
 }
 

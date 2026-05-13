@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   createPixCharge,
-  createStaticQrCode,
   createCharge,
   createProject,
   listProjects,
@@ -14,7 +13,7 @@ import {
   createWithdrawal,
   getAccountInfo,
 } from './lib/api';
-import type { PixCharge, StaticQrCode, Charge, Project, Customer, Transaction, Withdrawal, AccountInfo } from '@pague-dev/sdk-node';
+import type { PixCharge, Charge, Project, Customer, Transaction, Withdrawal, AccountInfo } from '@pague-dev/sdk-node';
 import { TabButton } from '@/components/ui';
 import { formatApiError } from '@/lib/error-messages';
 import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WithdrawalsFlow, WebhooksFlow, AccountFlow } from '@/components/flows';
@@ -22,7 +21,7 @@ import { PixFlow, PaymentLinkFlow, CustomersFlow, TransactionsFlow, WithdrawalsF
 type FlowType = 'pix' | 'payment-link' | 'customers' | 'withdrawals' | 'transactions' | 'account' | 'webhooks';
 
 const flowDescriptions: Record<FlowType, string> = {
-  pix: 'Gere QR Codes dinâmicos ou estáticos',
+  pix: 'Gere QR Codes PIX (com ou sem pagador)',
   'payment-link': 'Crie links de pagamento compartilháveis',
   customers: 'Gerencie sua base de clientes',
   withdrawals: 'Realize saques via PIX',
@@ -57,8 +56,6 @@ export default function App() {
   const [loadingSelectedCharge, setLoadingSelectedCharge] = useState(false);
   const [withdrawalResult, setWithdrawalResult] = useState<Withdrawal | null>(null);
   const [accountResult, setAccountResult] = useState<AccountInfo | null>(null);
-  const [pixMode, setPixMode] = useState<'dynamic' | 'static'>('dynamic');
-  const [staticQrCodeResult, setStaticQrCodeResult] = useState<StaticQrCode | null>(null);
 
   async function loadProjects(key: string) {
     setLoadingProjects(true);
@@ -180,21 +177,6 @@ export default function App() {
     setLoading(false);
   }
 
-  async function handleCreateStaticQrCode(formData: FormData) {
-    if (!apiKey) {
-      setError('Informe a API Key primeiro');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setStaticQrCodeResult(null);
-
-    const result = await createStaticQrCode(apiKey, formData);
-    if (result.error) setError(formatApiError(result.error));
-    else if (result.data) setStaticQrCodeResult(result.data as StaticQrCode);
-    setLoading(false);
-  }
-
   async function handleCreateCharge(formData: FormData) {
     if (!apiKey) {
       setError('Informe a API Key primeiro');
@@ -302,7 +284,6 @@ export default function App() {
   function clearResults() {
     setError(null);
     setPixResult(null);
-    setStaticQrCodeResult(null);
     setChargeResult(null);
     setTransactionResult(null);
     setCustomerCreated(null);
@@ -559,10 +540,6 @@ export default function App() {
               setActiveFlow('transactions');
               clearResults();
             }}
-            pixMode={pixMode}
-            setPixMode={setPixMode}
-            staticQrCodeResult={staticQrCodeResult}
-            onSubmitStatic={handleCreateStaticQrCode}
           />
         )}
 
